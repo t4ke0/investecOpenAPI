@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
-	"fmt"
 	"log"
 
 	client "github.com/t4ke0/investecOpenAPI"
@@ -16,9 +14,7 @@ var (
 
 func main() {
 
-	userCredentials := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", clientID, secret)))
-
-	clt := client.NewBankingClient(userCredentials)
+	clt := client.NewBankingClient(secret, clientID)
 
 	if err := clt.GetAccessToken(); err != nil {
 		log.Fatal(err)
