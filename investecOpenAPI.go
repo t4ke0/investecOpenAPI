@@ -1,6 +1,7 @@
 package investecOpenAPI
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -19,7 +20,8 @@ type BankingClient struct {
 	httpClient *http.Client
 }
 
-func NewBankingClient(userCreds string) BankingClient {
+func NewBankingClient(secret, clientID string) BankingClient {
+	userCreds := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", clientID, secret)))
 	return BankingClient{
 		UserCreds:  userCreds,
 		httpClient: new(http.Client),
