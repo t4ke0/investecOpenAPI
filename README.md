@@ -35,11 +35,12 @@ import (
 
 func main() {
     // testing using sandbox data
-	clientID string = "yAxzQRFX97vOcyQAwluEU6H6ePxMA5eY"
-	secret   string = "4dY0PjEYqoBrZ99r"
-	key      string = "eUF4elFSRlg5N3ZPY3lRQXdsdUVVNkg2ZVB4TUE1ZVk6YVc1MlpYTjBaV010ZW1FdGNHSXRZV05qYjNWdWRITXRjMkZ1WkdKdmVBPT0="
+	var clientID string = "yAxzQRFX97vOcyQAwluEU6H6ePxMA5eY"
+	var secret   string = "4dY0PjEYqoBrZ99r"
+	var key      string = "eUF4elFSRlg5N3ZPY3lRQXdsdUVVNkg2ZVB4TUE1ZVk6YVc1MlpYTjBaV010ZW1FdGNHSXRZV05qYjNWdWRITXRjMkZ1WkdKdmVBPT0="
     //
 
+    client.IsDebug = true
     clt := client.NewBankingClient(key, secret, clientID)
 
     // OAuth to the API
