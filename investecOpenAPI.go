@@ -60,6 +60,7 @@ func (b BankingClient) requestAPI(url, method string, mode authMode) (*http.Resp
 		req.Header.Set("x-api-key", b.AccessToken)
 	case bearer:
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", b.AccessToken))
+		req.Header.Set("x-api-key", b.AccessToken)
 		req.Header.Set("Accept", "application/json")
 	}
 
