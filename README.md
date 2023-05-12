@@ -34,11 +34,13 @@ import (
 
 
 func main() {
-    // need to have secret and clientID then fill in these vars.
-    secret := ""
-    clientID := ""
+    // testing using sandbox data
+	clientID string = "yAxzQRFX97vOcyQAwluEU6H6ePxMA5eY"
+	secret   string = "4dY0PjEYqoBrZ99r"
+	key      string = "eUF4elFSRlg5N3ZPY3lRQXdsdUVVNkg2ZVB4TUE1ZVk6YVc1MlpYTjBaV010ZW1FdGNHSXRZV05qYjNWdWRITXRjMkZ1WkdKdmVBPT0="
+    //
 
-    clt := client.NewBankingClient(secret, clientID)
+    clt := client.NewBankingClient(key, secret, clientID)
 
     // OAuth to the API
     if err := clt.GetAccessToken(); err != nil {
