@@ -11,7 +11,9 @@ import (
 	"github.com/t4ke0/investecOpenAPI/api"
 )
 
-const APIurl string = "https://openapi.investec.com"
+var APIurl string = "https://openapi.investec.com"
+
+var IsDebug bool
 
 type BankingClient struct {
 	UserCreds   string
@@ -20,11 +22,12 @@ type BankingClient struct {
 	httpClient *http.Client
 }
 
-func NewBankingClient(secret, clientID string) BankingClient {
+func NewBankingClient(key, secret, clientID string) BankingClient {
 	userCreds := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", clientID, secret)))
 	return BankingClient{
-		UserCreds:  userCreds,
-		httpClient: new(http.Client),
+		UserCreds:   userCreds,
+		AccessToken: key,
+		httpClient:  new(http.Client),
 	}
 }
 
@@ -54,6 +57,7 @@ func (b BankingClient) requestAPI(url, method string, mode authMode) (*http.Resp
 	case basic:
 		req.Header.Set("Authorization", fmt.Sprintf("Basic %s", b.UserCreds))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Set("x-api-key", b.AccessToken)
 	case bearer:
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", b.AccessToken))
 		req.Header.Set("Accept", "application/json")
@@ -64,6 +68,9 @@ func (b BankingClient) requestAPI(url, method string, mode authMode) (*http.Resp
 
 // GetAccessToken
 func (b *BankingClient) GetAccessToken() error {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
 	url := fmt.Sprintf("%s/identity/v2/oauth2/token", APIurl)
 	resp, err := b.requestAPI(url, http.MethodPost, basic)
 	if err != nil {
@@ -93,6 +100,9 @@ func (b *BankingClient) GetAccessToken() error {
 
 // GetAccounts
 func (b BankingClient) GetAccounts() (api.Accounts, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
 	url := fmt.Sprintf("%s/za/pb/v1/accounts", APIurl)
 	resp, err := b.requestAPI(url, http.MethodGet, bearer)
 	if err != nil {
@@ -116,6 +126,9 @@ func (b BankingClient) GetAccounts() (api.Accounts, error) {
 
 // GetAccountBalance
 func (b BankingClient) GetAccountBalance(accountId string) (api.Balance, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
 	url := fmt.Sprintf("%s/za/pb/v1/accounts/%s/balance", APIurl, accountId)
 	resp, err := b.requestAPI(url, http.MethodGet, bearer)
 	if err != nil {
@@ -141,6 +154,9 @@ func (b BankingClient) GetAccountBalance(accountId string) (api.Balance, error) 
 // using the fromDate and toDate parameters and the dates need to follow ISO
 // 8601 time format
 func (b BankingClient) GetAccountTransactions(accountID string, fromDate, toDate string) (api.Transactions, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
 	var url string = fmt.Sprintf("%s/za/pb/v1/accounts/%s/transactions", APIurl, accountID)
 	if fromDate != "" && toDate != "" {
 		url += fmt.Sprintf("?fromDate=%s&toDate=%s", fromDate, toDate)
