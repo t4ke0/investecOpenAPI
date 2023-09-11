@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 
 	client "github.com/t4ke0/investecOpenAPI"
+	"github.com/t4ke0/investecOpenAPI/api"
 )
 
 // sandbox data
@@ -32,7 +35,7 @@ func main() {
 	log.Printf("debug accounts %v", accounts)
 
 	// fill in the accountID var with your account id
-	var accountID string = ""
+	var accountID string = accounts.Data.AccountsArr[0].AccountID
 	balance, err := clt.GetAccountBalance(accountID)
 	if err != nil {
 		log.Fatal(err)
@@ -47,5 +50,41 @@ func main() {
 	}
 
 	log.Printf("debug transactions %v", transactions)
+
+	beneficiaries, err := clt.GetBeneficiaries()
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, _ := json.MarshalIndent(beneficiaries, "", " ")
+
+	fmt.Println(string(data))
+
+	transfermultipleResponse, err := clt.TransferMultiple(accountID, []api.TransferTo{
+		api.TransferTo{
+			BeneficiaryAccountId: "MTAxOTAwMjQ2MTI2NjA=",
+			Amount:               "10.00",
+			MyReference:          "Test",
+			TheirReference:       "STD Ben Ref",
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, _ = json.MarshalIndent(transfermultipleResponse, "", " ")
+	fmt.Println(string(data))
+
+	payMultipleResponse, err := clt.PayMultiple(accountID, []api.PaymentMultiple{
+		api.PaymentMultiple{
+			BeneficiaryAccountId: "MTAxOTAwMjQ2MTI2NjA=",
+			Amount:               "10.00",
+			MyReference:          "Test",
+			TheirReference:       "STD Ben Ref",
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, _ = json.MarshalIndent(payMultipleResponse, "", " ")
+	fmt.Println(string(data))
 
 }
