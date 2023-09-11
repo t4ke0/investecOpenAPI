@@ -1,10 +1,12 @@
 package investecOpenAPI
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -38,7 +40,7 @@ const (
 	bearer
 )
 
-func (b BankingClient) requestAPI(url, method string, mode authMode) (*http.Response, error) {
+func (b BankingClient) requestAPI(url, method string, mode authMode, body []byte) (*http.Response, error) {
 	var (
 		req *http.Request
 		err error
@@ -46,7 +48,7 @@ func (b BankingClient) requestAPI(url, method string, mode authMode) (*http.Resp
 	if mode == basic {
 		req, err = http.NewRequest(method, url, strings.NewReader("grant_type=client_credentials&scope=accounts"))
 	} else {
-		req, err = http.NewRequest(method, url, nil)
+		req, err = http.NewRequest(method, url, bytes.NewBuffer(body))
 	}
 
 	if err != nil {
@@ -73,7 +75,7 @@ func (b *BankingClient) GetAccessToken() error {
 		APIurl = "https://openapisandbox.investec.com"
 	}
 	url := fmt.Sprintf("%s/identity/v2/oauth2/token", APIurl)
-	resp, err := b.requestAPI(url, http.MethodPost, basic)
+	resp, err := b.requestAPI(url, http.MethodPost, basic, nil)
 	if err != nil {
 		return err
 	}
@@ -105,7 +107,7 @@ func (b BankingClient) GetAccounts() (api.Accounts, error) {
 		APIurl = "https://openapisandbox.investec.com"
 	}
 	url := fmt.Sprintf("%s/za/pb/v1/accounts", APIurl)
-	resp, err := b.requestAPI(url, http.MethodGet, bearer)
+	resp, err := b.requestAPI(url, http.MethodGet, bearer, nil)
 	if err != nil {
 		return api.Accounts{}, err
 	}
@@ -131,7 +133,7 @@ func (b BankingClient) GetAccountBalance(accountId string) (api.Balance, error) 
 		APIurl = "https://openapisandbox.investec.com"
 	}
 	url := fmt.Sprintf("%s/za/pb/v1/accounts/%s/balance", APIurl, accountId)
-	resp, err := b.requestAPI(url, http.MethodGet, bearer)
+	resp, err := b.requestAPI(url, http.MethodGet, bearer, nil)
 	if err != nil {
 		return api.Balance{}, err
 	}
@@ -163,7 +165,7 @@ func (b BankingClient) GetAccountTransactions(accountID string, fromDate, toDate
 		url += fmt.Sprintf("?fromDate=%s&toDate=%s", fromDate, toDate)
 	}
 
-	resp, err := b.requestAPI(url, http.MethodGet, bearer)
+	resp, err := b.requestAPI(url, http.MethodGet, bearer, nil)
 	if err != nil {
 		return api.Transactions{}, err
 	}
@@ -180,4 +182,116 @@ func (b BankingClient) GetAccountTransactions(accountID string, fromDate, toDate
 
 	var transactions api.Transactions
 	return transactions, json.Unmarshal(data, &transactions)
+}
+
+// TransferMultiple
+func (b BankingClient) TransferMultiple(accountID string, transfers []api.TransferTo) (api.MultipleTransfersResponse, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
+	var url string = fmt.Sprintf("%s/za/pb/v1/accounts/%s/transfermultiple", APIurl, accountID)
+
+	var requestBodyObj = struct {
+		TransferList []api.TransferTo `json:"transferList"`
+	}{transfers}
+
+	data, err := json.Marshal(requestBodyObj)
+	if err != nil {
+		return api.MultipleTransfersResponse{}, err
+	}
+	resp, err := b.requestAPI(url, http.MethodPost, bearer, data)
+	if err != nil {
+		return api.MultipleTransfersResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	data, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return api.MultipleTransfersResponse{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return api.MultipleTransfersResponse{}, fmt.Errorf(
+			"Error failed to TransferMultiple [%v] [%v]", resp.StatusCode, string(data),
+		)
+	}
+
+	var response api.MultipleTransfersResponse
+
+	if IsDebug {
+		log.Printf("DEBUG RESPONSE TRANSFER MULTIPLE %v %v", resp.StatusCode, string(data))
+		return response, nil
+	}
+
+	return response, json.Unmarshal(data, &response)
+}
+
+// PayMultiple
+func (b BankingClient) PayMultiple(accountID string, payments []api.PaymentMultiple) (api.MultiplePaymentResponse, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
+	var url string = fmt.Sprintf("%s/za/pb/v1/accounts/%s/paymultiple", APIurl, accountID)
+
+	var requestBodyObj = struct {
+		PaymentList []api.PaymentMultiple `json:"paymentList"`
+	}{payments}
+
+	data, err := json.Marshal(requestBodyObj)
+	if err != nil {
+		return api.MultiplePaymentResponse{}, err
+	}
+
+	resp, err := b.requestAPI(url, http.MethodPost, bearer, data)
+	if err != nil {
+		return api.MultiplePaymentResponse{}, err
+	}
+	defer resp.Body.Close()
+
+	data, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return api.MultiplePaymentResponse{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return api.MultiplePaymentResponse{}, fmt.Errorf(
+			"Error failed to PayMultiple [%v] [%v]", resp.StatusCode, string(data),
+		)
+	}
+
+	var response api.MultiplePaymentResponse
+	if IsDebug {
+		log.Printf("DEBUG RESPONSE PAY MULTIPLE %v %v", resp.StatusCode, string(data))
+		return response, nil
+	}
+
+	return response, json.Unmarshal(data, &response)
+}
+
+// GetBeneficiaries
+func (b BankingClient) GetBeneficiaries() (api.Beneficiaries, error) {
+	if IsDebug {
+		APIurl = "https://openapisandbox.investec.com"
+	}
+	var url string = fmt.Sprintf("%s/za/pb/v1/accounts/beneficiaries", APIurl)
+
+	resp, err := b.requestAPI(url, http.MethodGet, bearer, nil)
+	if err != nil {
+		return api.Beneficiaries{}, err
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return api.Beneficiaries{}, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return api.Beneficiaries{}, fmt.Errorf(
+			"Error failed to GetBeneficiaries [%v] [%v]", resp.StatusCode, string(data),
+		)
+	}
+
+	var beneficiaries api.Beneficiaries
+	return beneficiaries, json.Unmarshal(data, &beneficiaries)
 }

@@ -51,3 +51,53 @@ type Transactions struct {
 		} `json:"transactions"`
 	} `json:"data"`
 }
+
+type TransferTo struct {
+	BeneficiaryAccountId string `json:"beneficiaryAccountId"`
+	Amount               string `json:"amount"`
+	MyReference          string `json:"myReference"`
+	TheirReference       string `json:"theirReference"`
+}
+
+type MultipleTransfersResponse struct {
+	Data struct {
+		TransferResponse struct {
+			PaymentReferenceNumber string `json:"PaymentReferenceNumber"`
+			PaymentDate            string `json:"PaymentDate"`
+			Status                 string `json:"Status"`
+			BeneficiaryName        string `json:"BeneficiaryName"`
+			BeneficiaryAccountId   string `json:"BeneficiaryAccountId"`
+		} `json:"TransferResponse"`
+		ErrorMessage string `json:"ErrorMessage"`
+	} `json:"data"`
+}
+
+type PaymentMultiple struct {
+	BeneficiaryAccountId string `json:"beneficiaryAccountId"`
+	Amount               string `json:"amount"`
+	MyReference          string `json:"myReference"`
+	TheirReference       string `json:"theirReference"`
+}
+
+type MultiplePaymentResponse struct {
+	MultipleTransfersResponse
+}
+
+type Beneficiaries struct {
+	Data []struct {
+		BeneficiaryId          string `json:"BeneficiaryId"`
+		AccountNumber          string `json:"AccountNumber"`
+		Code                   string `json:"Code"`
+		Bank                   string `json:"Bank"`
+		BeneficiaryName        string `json:"BeneficiaryName"`
+		LastPaymentAmount      string `json:"LastPaymentAmount"`
+		LastPaymentDate        string `json:"LastPaymentDate"`
+		CellNo                 string `json:"CellNo"`
+		EmailAddress           string `json:"EmailAddress"`
+		Name                   string `json:"Name"`
+		ReferenceAccountNumber string `json:"ReferenceAccountNumber"`
+		ReferenceName          string `json:"ReferenceName"`
+		CategoryId             string `json:"CategoryId"`
+		ProfileId              string `json:profileId`
+	} `json:"data"`
+}
