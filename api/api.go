@@ -61,13 +61,13 @@ type TransferTo struct {
 
 type MultipleTransfersResponse struct {
 	Data struct {
-		TransferResponse struct {
+		TransferResponses []struct {
 			PaymentReferenceNumber string `json:"PaymentReferenceNumber"`
 			PaymentDate            string `json:"PaymentDate"`
 			Status                 string `json:"Status"`
 			BeneficiaryName        string `json:"BeneficiaryName"`
 			BeneficiaryAccountId   string `json:"BeneficiaryAccountId"`
-		} `json:"TransferResponse"`
+		} `json:"TransferResponses"`
 		ErrorMessage string `json:"ErrorMessage"`
 	} `json:"data"`
 }

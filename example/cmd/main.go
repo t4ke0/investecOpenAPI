@@ -6,6 +6,7 @@ import (
 	"log"
 
 	client "github.com/t4ke0/investecOpenAPI"
+	"github.com/t4ke0/investecOpenAPI/api"
 )
 
 // sandbox data
@@ -61,23 +62,23 @@ func main() {
 	// NOTE: commented because I couldn't run them in the sandbox environment
 	// you can try the same thing in the production environment.
 
-	// payMultipleResponse, err := clt.PayMultiple(accountID, []api.PaymentMultiple{
-	// 	api.PaymentMultiple{
-	// 		BeneficiaryAccountId: "MTAxOTA0MTQwMjAlNjc=",
-	// 		Amount:               "10.00",
-	// 		MyReference:          "TestAPI to speedcubes",
-	// 		TheirReference:       "STD Ben Ref",
-	// 	},
-	// })
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// data, _ = json.MarshalIndent(payMultipleResponse, "", " ")
-	// fmt.Println(string(data))
+	payMultipleResponse, err := clt.PayMultiple(accountID, []api.PaymentMultiple{
+		api.PaymentMultiple{
+			BeneficiaryId:  "MTAxNzIwNDc5ODgwMzX=",
+			Amount:         "10.00",
+			MyReference:    "TestAPI to speedcubes",
+			TheirReference: "STD Ben Ref",
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, _ = json.MarshalIndent(payMultipleResponse, "", " ")
+	fmt.Println(string(data))
 
 	// transfermultipleResponse, err := clt.TransferMultiple(accountID, []api.TransferTo{
 	// 	api.TransferTo{
-	// 		BeneficiaryAccountId: "MTAxNzIwNDc5ODgwMzX=",
+	// 		BeneficiaryAccountId: "MTAxNzIwNDc5ODgwMz=",
 	// 		Amount:               "10.00",
 	// 		MyReference:          "TestAPI to speedcubes",
 	// 		TheirReference:       "STD Ben Ref",

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -221,11 +220,6 @@ func (b BankingClient) TransferMultiple(accountID string, transfers []api.Transf
 
 	var response api.MultipleTransfersResponse
 
-	if IsDebug {
-		log.Printf("DEBUG RESPONSE TRANSFER MULTIPLE %v %v", resp.StatusCode, string(data))
-		return response, nil
-	}
-
 	return response, json.Unmarshal(data, &response)
 }
 
@@ -263,10 +257,6 @@ func (b BankingClient) PayMultiple(accountID string, payments []api.PaymentMulti
 	}
 
 	var response api.MultiplePaymentResponse
-	if IsDebug {
-		log.Printf("DEBUG RESPONSE PAY MULTIPLE %v %v", resp.StatusCode, string(data))
-		return response, nil
-	}
 
 	return response, json.Unmarshal(data, &response)
 }
