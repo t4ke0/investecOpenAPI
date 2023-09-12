@@ -73,10 +73,10 @@ type MultipleTransfersResponse struct {
 }
 
 type PaymentMultiple struct {
-	BeneficiaryAccountId string `json:"beneficiaryAccountId"`
-	Amount               string `json:"amount"`
-	MyReference          string `json:"myReference"`
-	TheirReference       string `json:"theirReference"`
+	BeneficiaryId  string `json:"beneficiaryId"`
+	Amount         string `json:"amount"`
+	MyReference    string `json:"myReference"`
+	TheirReference string `json:"theirReference"`
 }
 
 type MultiplePaymentResponse struct {
